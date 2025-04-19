@@ -233,6 +233,7 @@
     let timeLeft;
     const INITIAL_TIME = 15.0;
     let gameActive = false;
+    let inputLocked = false;
     let gameInterval;
     let countdownInterval;
     let colorMap = {
@@ -347,11 +348,12 @@
 
         animateBlock();
       } else {
-        timeLeft -= 1.5;
+        inputLocked = true;
+        timeLeft = Math.max(0, timeLeft - 1.5); // Safe subtract
         document.body.style.backgroundColor = '#330000';
         setTimeout(() => {
           document.body.style.backgroundColor = '#1a0933';
-        }, 200);
+        }, 250);
       }
     }
 
