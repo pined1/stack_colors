@@ -36,7 +36,7 @@
     }
 
     #timer {
-      position: absolute;
+      position: none;
       top: 100px;
       left: 50%;
       transform: translateX(-50%);
@@ -197,7 +197,7 @@
 
   <div id="menu">
     <h1>StackTap</h1>
-    <img id="intro-image" src="data:image/svg+xml;base64,...(same base64 image as you had)..." alt="Stack of Blocks">
+    <img id="intro-image" src="logo_stack.png" alt="Stack of Blocks">
     <p>Tap the matching color zone!</p>
     <button id="start-button">START</button>
   </div>
@@ -292,6 +292,7 @@
       scoreDisplay.textContent = score;
       timerDisplay.textContent = `${timeLeft.toFixed(1)}s`;
       gameContainer.style.display = 'block';
+      timerDisplay.style.display = 'block';
       setBlockColor(colors[Math.floor(Math.random() * colors.length)]);
       gameActive = true;
 
