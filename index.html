@@ -348,8 +348,8 @@
 
         animateBlock();
       } else {
+        if (inputLocked) return;
         inputLocked = true;
-        timeLeft = Math.max(0, timeLeft - 1.5); // Safe subtract
         document.body.style.backgroundColor = '#330000';
         setTimeout(() => {
           document.body.style.backgroundColor = '#1a0933';
