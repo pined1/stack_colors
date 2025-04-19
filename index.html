@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StackTap</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #1a0933;
+      color: white;
+      text-align: center;
+      touch-action: manipulation;
+      user-select: none;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    #score {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 64px;
+      font-weight: bold;
+      color: white;
+      text-shadow: 0 0 20px white;
+      z-index: 10;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+
+    #timer {
+      position: absolute;
+      top: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 48px;
+      font-weight: bold;
+      color: #f0c020;
+      text-shadow: 0 0 10px #f0c020;
+      z-index: 10;
+    }
+
+    #game-container {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      aspect-ratio: 1;
+      margin: 0 auto;
+      display: none;
+    }
+
+    .color-zone {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      background-color: rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    #top-zone {
+      top: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #f0c020;
+    }
+
+    #left-zone {
+      top: 50%;
+      left: 40px;
+      transform: translateY(-50%);
+      background-color: #e74c3c;
+    }
+
+    #right-zone {
+      top: 50%;
+      right: 40px;
+      transform: translateY(-50%);
+      background-color: #3498db;
+    }
+
+    #bottom-zone {
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #16a085;
+    }
+
+    #current-block {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100px;
+      height: 100px;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+      box-shadow: inset -10px -10px 0 rgba(0, 0, 0, 0.1),
+                  inset 10px 10px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    #menu {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    #intro-image {
+      width: 200px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 12px 32px;
+      font-size: 24px;
+      background-color: #9c27b0;
+      color: white;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 0 15px #9c27b0;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #9c27b0;
+    }
+
+    #countdown {
+      font-size: 72px;
+      color: white;
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-shadow: 0 0 20px white;
+    }
+
+    #game-over {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    h1 {
+      font-size: 48px;
+      text-shadow: 0 0 10px #9c27b0;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      font-size: 36px;
+      margin-top: 0;
+    }
+
+    #final-score {
+      font-size: 64px;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+
+    @keyframes scorePopup {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.5); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes scoreGlow {
+      0% { text-shadow: 0 0 5px white; }
+      50% { text-shadow: 0 0 20px #9c27b0, 0 0 30px #9c27b0; }
+      100% { text-shadow: 0 0 5px white; }
+    }
+
+    .score-animate {
+      animation: scorePopup 0.3s ease-out, scoreGlow 0.5s ease-out;
+    }
+  </style>
+</head>
+<body>
+  <div id="score">0</div>
+  <div id="timer">15.0s</div>
+
+  <div id="menu">
+    <h1>StackTap</h1>
+    <img id="intro-image" src="data:image/svg+xml;base64,...(same base64 image as you had)..." alt="Stack of Blocks">
+    <p>Tap the matching color zone!</p>
+    <button id="start-button">START</button>
+  </div>
+
+  <div id="game-over">
+    <h2>Game Over!</h2>
+    <div id="final-score">0</div>
+    <button id="restart-button">PLAY AGAIN</button>
+  </div>
+
+  <div id="countdown">3</div>
+
+  <div id="game-container">
+    <div id="current-block"></div>
+
+    <div class="color-zone" id="top-zone" data-color="yellow"></div>
+    <div class="color-zone" id="left-zone" data-color="red"></div>
+    <div class="color-zone" id="right-zone" data-color="blue"></div>
+    <div class="color-zone" id="bottom-zone" data-color="green"></div>
+  </div>
+
+  <script>
+    let score = 0;
+    let timeLeft = 15.0;
+    let gameActive = false;
+    let gameInterval;
+    let countdownInterval;
+    let colorMap = {
+      'red': '#e74c3c',
+      'blue': '#3498db',
+      'green': '#16a085',
+      'yellow': '#f0c020'
+    };
+    let colors = Object.keys(colorMap);
+    let currentColor = 'blue';
+
+    const gameContainer = document.getElementById('game-container');
+    const currentBlock = document.getElementById('current-block');
+    const menu = document.getElementById('menu');
+    const gameOver = document.getElementById('game-over');
+    const countdownDisplay = document.getElementById('countdown');
+    const startButton = document.getElementById('start-button');
+    const restartButton = document.getElementById('restart-button');
+    const scoreDisplay = document.getElementById('score');
+    const finalScoreDisplay = document.getElementById('final-score');
+    const timerDisplay = document.getElementById('timer');
+    const colorZones = document.querySelectorAll('.color-zone');
+
+    function setBlockColor(color) {
+      currentColor = color;
+      currentBlock.style.backgroundColor = colorMap[color];
+    }
+
+    function animateScore() {
+      scoreDisplay.classList.remove('score-animate');
+      void scoreDisplay.offsetWidth;
+      scoreDisplay.classList.add('score-animate');
+    }
+
+    startButton.addEventListener('click', startCountdown);
+    restartButton.addEventListener('click', startCountdown);
+
+    colorZones.forEach(zone => {
+      zone.addEventListener('click', () => {
+        if (!gameActive) return;
+        checkMatch(zone.dataset.color);
+      });
+    });
+
+    function startCountdown() {
+      menu.style.display = 'none';
+      gameOver.style.display = 'none';
+      countdownDisplay.style.display = 'block';
+      countdownDisplay.textContent = '3';
+
+      let count = 3;
+      countdownInterval = setInterval(() => {
+        count--;
+        countdownDisplay.textContent = count;
+
+        if (count <= 0) {
+          clearInterval(countdownInterval);
+          countdownDisplay.style.display = 'none';
+          startGame();
+        }
+      }, 1000);
+    }
+
+    function startGame() {
+      score = 0;
+      timeLeft = 15.0;
+      scoreDisplay.textContent = score;
+      timerDisplay.textContent = `${timeLeft.toFixed(1)}s`;
+      gameContainer.style.display = 'block';
+      setBlockColor(colors[Math.floor(Math.random() * colors.length)]);
+      gameActive = true;
+
+      gameInterval = setInterval(() => {
+        timeLeft -= 0.1;
+        timeLeft = Math.max(0, timeLeft);
+        timerDisplay.textContent = `${timeLeft.toFixed(1)}s`;
+        if (timeLeft <= 0) {
+          endGame();
+        }
+      }, 100);
+    }
+
+    function endGame() {
+      clearInterval(gameInterval);
+      gameActive = false;
+      gameContainer.style.display = 'none';
+      finalScoreDisplay.textContent = score;
+      gameOver.style.display = 'flex';
+    }
+
+    function checkMatch(tappedColor) {
+      if (tappedColor === currentColor) {
+        score++;
+        scoreDisplay.textContent = score;
+        animateScore();
+
+        let newColor;
+        do {
+          newColor = colors[Math.floor(Math.random() * colors.length)];
+        } while (newColor === currentColor);
+
+        setBlockColor(newColor);
+
+        timeLeft += 0.7;
+        timeLeft = Math.min(timeLeft, 15);
+
+        document.querySelector(`[data-color="${tappedColor}"]`).style.opacity = '0.5';
+        setTimeout(() => {
+          document.querySelector(`[data-color="${tappedColor}"]`).style.opacity = '1';
+        }, 100);
+
+        animateBlock();
+      } else {
+        timeLeft -= 1.5;
+        document.body.style.backgroundColor = '#330000';
+        setTimeout(() => {
+          document.body.style.backgroundColor = '#1a0933';
+        }, 200);
+      }
+    }
+
+    function animateBlock() {
+      currentBlock.style.transform = 'translate(-50%, -50%) scale(1.2)';
+      setTimeout(() => {
+        currentBlock.style.transform = 'translate(-50%, -50%) scale(1)';
+      }, 150);
+    }
+
+    setBlockColor('blue');
+  </script>
+</body>
+</html>
